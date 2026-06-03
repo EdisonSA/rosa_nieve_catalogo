@@ -39,3 +39,7 @@ class Producto(models.Model):
 
     def __str__(self):
         return f"[{self.get_categoria_principal_display()}] {self.nombre} - {self.marca if self.marca else ''}"
+
+    # BOTONES DE ACCION
+    class Meta:
+        db_table = 'gestion_bar_producto'  # OBLIGA A DJANGO A USAR LA TABLA ACTUAL CON LOS 15 PRODUCTOS

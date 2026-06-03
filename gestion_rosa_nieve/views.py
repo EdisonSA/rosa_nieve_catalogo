@@ -23,11 +23,11 @@ def menu_bar(request):
     carrito = Carrito(request)
     request.session["carrito_total"] = carrito.get_total_carrito()    
 
-    return render(request, 'gestion_bar/menu.html', {'productos': productos})
+    return render(request, 'gestion_rosa_nieve/menu.html', {'productos': productos})
 
 def detalle_producto(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id)
-    return render(request, 'gestion_bar/detalle_producto.html', {'producto': producto})
+    return render(request, 'gestion_rosa_nieve/detalle_producto.html', {'producto': producto})
 
 def agregar_producto(request, producto_id):
     carrito = Carrito(request)

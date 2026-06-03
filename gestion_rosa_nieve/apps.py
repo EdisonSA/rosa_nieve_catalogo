@@ -3,4 +3,4 @@ from django.apps import AppConfig
 
 class GestionBarConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'gestion_bar'
+    name = 'gestion_rosa_nieve'
