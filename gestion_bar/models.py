@@ -16,7 +16,7 @@ class Producto(models.Model):
         ('piel', 'PIEL'),
         
         # SEXY - HOT
-        ('encajes', 'ENCAJES'),
+        ('lenceria_sexy', 'LENCERÍA SEXY'),
         
         # FRAGANCE
         ('dulces', 'DULCES'),

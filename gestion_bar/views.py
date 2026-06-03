@@ -18,7 +18,7 @@ def menu_bar(request):
         )
 
     if categoria_slug:
-        productos = productos.filter(categoria=categoria_slug)
+        productos = productos.filter(categoria_principal=categoria_slug)
     
     carrito = Carrito(request)
     request.session["carrito_total"] = carrito.get_total_carrito()    
