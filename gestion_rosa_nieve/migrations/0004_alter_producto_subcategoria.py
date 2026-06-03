@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('gestion_bar', '0003_remove_producto_categoria_and_more'),
+        ('gestion_rosa_nieve', '0003_remove_producto_categoria_and_more'),
     ]
 
     operations = [

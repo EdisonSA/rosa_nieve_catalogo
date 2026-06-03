@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('gestion_bar', '0001_initial'),
+        ('gestion_rosa_nieve', '0001_initial'),
     ]
 
     operations = [
