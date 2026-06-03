@@ -3,9 +3,8 @@ from .models import Producto
 from django.db.models import Q
 from .carrito import Carrito
 
-
 def home(request):
-    return render(request, 'gestion_bar/home.html')
+    return render(request, 'gestion_rosa_nieve/home.html')
 
 def menu_bar(request):
     categoria_slug = request.GET.get('categoria')
@@ -16,12 +15,12 @@ def menu_bar(request):
         productos = productos.filter(
             Q(nombre__icontains=query) | Q(descripcion__icontains=query)
         )
-
+        
     if categoria_slug:
         productos = productos.filter(categoria_principal=categoria_slug)
-    
+
     carrito = Carrito(request)
-    request.session["carrito_total"] = carrito.get_total_carrito()    
+    request.session["carrito_total"] = carrito.get_total_carrito()
 
     return render(request, 'gestion_rosa_nieve/menu.html', {'productos': productos})
 
