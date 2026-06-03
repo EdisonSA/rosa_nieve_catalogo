@@ -1,0 +1,69 @@
+{% extends 'gestion_bar/base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- PRESENTACION PRINCIPAL -->
+<div class="hero-section text-center d-flex align-items-center justify-content-center" 
+     style="background: radial-gradient(circle, #ffffff 60%, #fce4ec 100%); min-height: 85vh; padding: 2rem 0;">
+    <div class="container animate__animated animate__fadeIn">
+        <div class="mb-4">
+            <img src="{% static 'images/logo_rosa_nieve.jpg' %}" 
+                 alt="Rosa Nieve Logo" 
+                 class="img-fluid rounded-circle shadow-sm" 
+                 style="max-width: 320px; width: 100%; height: auto; border: 4px solid #fff;">
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-7">
+                <p class="fs-4 text-secondary mb-2" style="font-family: 'Playfair Display', serif; font-style: italic;">
+                    "Resalta tu belleza única con nuestra exclusiva línea de maquillaje y cuidado de la piel."
+                </p>
+                
+                <p class="fs-4 text-secondary mb-4" style="font-family: 'Playfair Display', serif; font-style: italic;">
+                    "Tu dosis diaria de color, frescura y amor propio. ✨, directamente a tu puerta. 🌸❄️"
+                </p>
+                
+                <a href="{% url 'menu' %}" class="btn btn-lg px-5 py-3 fw-bold text-white shadow-sm transition-all" 
+                   style="background: linear-gradient(45deg, #d81b60, #ff6090); border: none; border-radius: 50px; letter-spacing: 1px;">
+                    EXPLORAR CATÁLOGO
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CATEGORIAS -->
+<div class="container my-5">
+    <div class="row justify-content-center text-center mb-4">
+        <div class="col-md-8">
+            <h2 class="fw-bold text-uppercase" style="letter-spacing: 1px; color: #d81b60;">Categorías Principales</h2>
+            <p class="text-secondary" style="font-family: 'Playfair Display', serif; font-style: italic;">Encuentra todo lo que necesitas para tu rutina de cuidado y color.</p>
+        </div>
+    </div>
+
+    <!-- BOTONES DE ACCION -->
+    <div class="row g-4 justify-content-center">
+        <div class="col-6 col-md-3">
+            <a href="{% url 'menu' %}?categoria=maquillaje" class="btn btn-outline-dark w-100 py-3 fw-bold rounded-pill transition-all shadow-sm" style="border: 2px solid #ff6090; color: #d81b60;">
+                💄 MAQUILLAJE
+            </a>
+        </div>
+        <div class="col-6 col-md-3">
+            <a href="{% url 'menu' %}?categoria=skincare" class="btn btn-outline-dark w-100 py-3 fw-bold rounded-pill transition-all shadow-sm" style="border: 2px solid #ff6090; color: #d81b60;">
+                ✨ SKINCARE
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .transition-all {
+        transition: all 0.3s ease-in-out;
+    }
+    .transition-all:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 15px rgba(216, 27, 96, 0.3) !important;
+        opacity: 0.95;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,232 @@
+{% extends 'gestion_bar/base.html' %}
+
+{% block title %}Catálogo - Rosa Nieve{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="text-center fw-bold mb-5"><i class="bi bi-stars" style="color: var(--primary-glam);"></i> Nuestro Catálogo</h1>
+
+    <!-- SISTEMA DE FILTRADO DE CATEGORÍAS -->
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <a href="{% url 'menu' %}" class="btn btn-sm btn-outline-glam m-1 px-3">Todos</a>
+            <a href="{% url 'menu' %}?categoria=makeup" class="btn btn-sm btn-outline-glam m-1 px-3">Makeup</a>
+            <a href="{% url 'menu' %}?categoria=sexy_hot" class="btn btn-sm btn-outline-glam m-1 px-3">Sexy - Hot</a>
+            <a href="{% url 'menu' %}?categoria=fragance" class="btn btn-sm btn-outline-glam m-1 px-3">Fragance</a>
+        </div>
+    </div>
+
+    <!-- BUSCADOR -->
+    <div class="row mb-5 justify-content-center">
+        <div class="col-md-6">
+            <div class="input-group shadow-sm">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="bi bi-search text-muted"></i>
+                </span>
+                <input type="text"
+                       id="buscador"
+                       class="form-control border-start-0 ps-0"
+                       placeholder="Buscar productos..."
+                       autocomplete="off">
+            </div>
+        </div>
+    </div>
+
+    <!-- GRILLA DE PRODUCTOS -->
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for p in productos %}
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0 {% if p.stock <= 0 %}card-agotada{% endif %}" style="overflow: hidden;">
+
+                <div class="position-relative d-block" style="z-index: 1;">
+                    <a href="{% url 'detalle_producto' p.pk %}">
+                        {% if p.stock <= 0 %}
+                        <span class="badge badge-agotado position-absolute top-0 end-0 m-2 shadow-sm">
+                            Agotado
+                        </span>
+                        {% endif %}
+
+                        <div class="card-img-container">
+                            {% if p.imagen %}
+                            <img src="{{ p.imagen.url }}" class="img-fit {% if p.stock <= 0 %}grayscale{% endif %}" alt="{{ p.nombre }}">
+                            {% else %}
+                            <img src="https://via.placeholder.com/300x300?text=Sin+Imagen" class="img-fit">
+                            {% endif %}
+                        </div>
+                    </a>
+                </div>
+
+                <div class="card-body d-flex flex-column justify-content-between position-relative" style="z-index: 2; background-color: #fff;">
+                    <div>
+                        <a href="{% url 'detalle_producto' p.pk %}" class="text-decoration-none text-dark">
+                            <h5 class="card-title fw-bold" style="font-size: 1.1rem;">{{ p.nombre }}</h5>
+                        </a>
+                        <p class="card-text text-muted small">{{ p.descripcion|truncatechars:50 }}</p>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <span class="fw-bold fs-5" style="color: var(--primary-glam);">${{ p.precio }}</span>
+
+                        <div class="d-flex flex-column gap-1 position-relative" style="z-index: 3;">
+                            {% if p.stock > 0 %}
+                            <a href="{% url 'detalle_producto' p.pk %}" class="btn btn-sm btn-outline-glam">Ver más</a>
+                            <a href="{% url 'agregar_al_carrito' p.pk %}" class="btn btn-sm btn-glam btn-add-cart">
+                                Añadir al carrito
+                            </a>
+                            {% else %}
+                            <button class="btn btn-sm btn-light border text-muted" disabled style="font-size: 0.8rem; font-style: italic;">Sin existencias</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="mb-4">
+                <i class="bi bi-search text-muted" style="font-size: 4rem;"></i>
+            </div>
+            <h2 class="fw-bold">No encontramos coincidencias</h2>
+            <p class="text-muted fs-5">
+                No hay resultados para "<strong>{{ request.GET.buscar|default:'' }}</strong>"
+            </p>
+            <a href="{% url 'menu' %}" class="btn btn-sm btn-glam shadow-sm mt-2 px-4">
+                Ver todo el catálogo
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    /* Filtro dinámico asíncrono en tiempo real sobre el DOM */
+    document.addEventListener('keyup', e => {
+        if (e.target.matches('#buscador')) {
+            const term = e.target.value.toLowerCase();
+            const productos = document.querySelectorAll('.row-cols-1 .col');
+
+            productos.forEach(producto => {
+                const cardTitle = producto.querySelector('.card-title');
+                if (cardTitle) {
+                    const nombre = cardTitle.textContent.toLowerCase();
+                    if (nombre.includes(term)) {
+                        producto.style.display = 'block';
+                    } else {
+                        producto.style.display = 'none';
+                    }
+                }
+            });
+        }
+    });
+</script>
+
+<!-- INDICADOR FLOTANTE DEL CARRITO -->
+<div class="fixed-bottom p-4 text-end" style="z-index: 1030;">
+    <button class="btn btn-glam rounded-circle shadow-lg p-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCarrito">
+        <i class="bi bi-bag-heart fs-4 text-white"></i>
+    </button>
+</div>
+
+<!-- OFF-CANVAS: PANEL LATERAL DE COMPRAS -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasCarrito" aria-labelledby="offcanvasCarritoLabel">
+    <div class="offcanvas-header text-white" style="background-color: var(--dark-bg);">
+        <h5 class="offcanvas-title fw-bold" id="offcanvasCarritoLabel"><i class="bi bi-bag-check"></i> Tu Bolsa</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        {% if request.session.carrito.items %}
+            <ul class="list-group list-group-flush">
+                {% for key, value in request.session.carrito.items %}
+                <li class="list-group-item d-flex justify-content-between align-items-start border-0 border-bottom py-3">
+                    <div class="ms-2 me-auto">
+                        <div class="fw-bold text-dark" style="font-size: 0.9rem;">{{ value.nombre }}</div>
+                        
+                        <div class="d-flex align-items-center mt-2 bg-light rounded-pill p-1" style="width: fit-content;">
+                            <button class="btn btn-sm btn-danger rounded-circle py-0 px-2 shadow-sm btn-update" 
+                                    data-url="{% url 'restar_unidad' value.producto_id %}" type="button" 
+                                    style="font-size: 0.8rem; line-height: 1;">-</button>
+                            
+                            <span class="mx-2 fw-bold text-dark" style="font-size: 0.85rem;">{{ value.cantidad }}</span>
+                            
+                            <button class="btn btn-sm btn-success rounded-circle py-0 px-2 shadow-sm btn-update" 
+                                    data-url="{% url 'sumar_unidad' value.producto_id %}" type="button"
+                                    style="font-size: 0.8rem; line-height: 1;">+</button>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex flex-column align-items-end">
+                        <span class="badge rounded-pill mb-2 btn-glam" style="font-size: 0.75rem;">
+                            ${{ value.total }}
+                        </span>
+                        <a href="{% url 'eliminar_del_carrito' value.producto_id %}" class="text-danger decoration-none">
+                            <i class="bi bi-trash" style="font-size: 1rem;"></i>
+                        </a>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            <hr>
+            <div class="d-grid gap-2 mt-3">
+                <h4 class="text-center fw-bold">Total: <span style="color: var(--primary-glam);">${{ request.session.carrito_total }}</span></h4>
+                
+                <a href="{% url 'limpiar_carrito' %}" class="btn btn-outline-danger btn-sm rounded-pill">
+                    Vaciar Bolsa
+                </a>
+                
+                <a href="#" class="btn btn-glam shadow rounded-pill py-2" id="btn-whatsapp">
+                    Enviar pedido a WhatsApp <i class="bi bi-whatsapp"></i>
+                </a>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-bag-x text-muted" style="font-size: 3rem;"></i>
+                <p class="mt-3 text-muted">Tu bolsa de compras está vacía.</p>
+                <button class="btn btn-sm btn-outline-glam" data-bs-dismiss="offcanvas">Ver productos</button>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    /* Orquestación de peticiones fetch asíncronas para el ciclo del carrito */
+    document.querySelectorAll('.btn-add-cart').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const url = this.getAttribute('href');
+            
+            fetch(url, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            }).then(() => {
+                location.reload();
+            });
+        });
+    });
+
+    document.querySelectorAll('.btn-update').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const url = this.getAttribute('data-url');
+            
+            fetch(url, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            }).then(() => {
+                location.hash = "panel-abierto"; 
+                location.reload();
+            });
+        });
+    });
+    
+    /* Control de persistencia visual de la barra lateral tras recargas de página */
+    window.addEventListener('load', function() {
+        if (window.location.hash === "#panel-abierto") {
+            const myOffcanvas = document.getElementById('offcanvasCarrito'); 
+            if (myOffcanvas) {
+                const bsOffcanvas = new bootstrap.Offcanvas(myOffcanvas);
+                bsOffcanvas.show();
+            }
+            history.replaceState(null, null, ' ');
+        }
+    });
+</script>
+{% endblock %}

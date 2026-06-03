@@ -1,0 +1,146 @@
+{% extends 'gestion_bar/base.html' %}
+
+{% block title %}{{ producto.nombre }} - Detalle{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow border-0 overflow-hidden">
+                <div class="row g-0">
+
+                    <div class="col-md-6 bg-light d-flex align-items-center justify-content-center p-4">
+                        {% if producto.imagen %}
+                        <img src="{{ producto.imagen.url }}" class="img-fluid rounded shadow-sm" alt="{{ producto.nombre }}" style="max-height: 450px; object-fit: contain;">
+                        {% else %}
+                        <img src="https://via.placeholder.com/400x400?text=Sin+Imagen" class="img-fluid rounded">
+                        {% endif %}
+                    </div>
+
+                    <div class="col-md-6 p-5">
+                        <span class="badge bg-primary mb-2">{{ producto.get_categoria_display }}</span>
+
+                        <h1 class="display-5 fw-bold mb-3">{{ producto.nombre }}</h1>
+
+                        <h2 class="text-success fw-bold mb-4">${{ producto.precio }}</h2>
+
+                        <hr>
+
+                        <div class="my-4">
+                            <h5 class="fw-bold">Sobre este producto:</h5>
+                            <p class="text-muted fs-5">
+                                {{ producto.descripcion|default:"Este producto es una de nuestras especialidades de la casa. ¡Pruébalo ahora!" }}
+                            </p>
+                        </div>
+
+                        <div class="p-3 bg-light rounded border mb-4">
+                            <p class="mb-0">
+                                <strong>Disponibilidad:</strong>
+                                {% if producto.stock > 0 %}
+                                {{ producto.stock }} unidades disponibles
+                                {% else %}
+                                <span class="text-danger">Agotado temporalmente</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        
+                        <div id="seccion-botones" class="d-grid gap-2 d-md-flex mt-4">
+                            <a href="{% url 'menu' %}" class="btn btn-outline-dark btn-lg px-4">
+                                <i class="bi bi-arrow-left"></i> Volver al Menú
+                            </a>
+                            {% if producto.stock > 0 %}
+                            <a href="{% url 'agregar_al_carrito' producto.id %}" class="btn btn-warning fw-bold text-dark shadow w-100 py-2">
+                                Añadir al pedido
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. Manejar la actualización de cantidades (+ o -) de forma asíncrona dentro del carrito
+        const updateButtons = document.querySelectorAll('.btn-update');
+        updateButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const url = this.getAttribute('data-url');
+                
+                // Petición en segundo plano para que el cambio de unidades mantenga abierto el panel
+                fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                    .then(() => {
+                        window.location.hash = '#panel-abierto';
+                        window.location.reload();
+                    });
+            });
+        });
+    
+        // 2. Al cargar la página, si detecta el hash '#panel-abierto' (desde los botones + o -), despliega el Offcanvas
+        if (window.location.hash === "#panel-abierto") {
+            var myOffcanvas = document.getElementById('offcanvasCarrito');
+            if (myOffcanvas) {
+                var bsOffcanvas = new bootstrap.Offcanvas(myOffcanvas);
+                bsOffcanvas.show();
+            }
+            history.replaceState(null, null, ' '); // Limpia el hash de la URL
+        }
+    });
+</script>
+    
+<div class="fixed-bottom p-4 text-end" style="z-index: 1030;">
+    <button class="btn btn-primary rounded-circle shadow-lg p-3" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasCarrito">
+        <i class="bi bi-cart4 fs-4 text-white"></i>
+    </button>
+</div>
+    
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasCarrito" aria-labelledby="offcanvasCarritoLabel">
+    <div class="offcanvas-header bg-dark text-white">
+        <h5 class="offcanvas-title" id="offcanvasCarritoLabel">📋 Tu Pedido</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        {% if request.session.carrito.items %}
+            <ul class="list-group list-group-flush">
+                {% for key, value in request.session.carrito.items %}
+                <li class="list-group-item d-flex justify-content-between align-items-start border-0 border-bottom py-3">
+                    <div class="ms-2 me-auto">
+                        <div class="fw-bold text-dark" style="font-size: 0.9rem;">{{ value.nombre }}</div>
+                        
+                        <div class="d-flex align-items-center mt-2 bg-light rounded-pill p-1" style="width: fit-content;">
+                            <button class="btn btn-sm btn-danger rounded-circle py-0 px-2 shadow-sm btn-update" data-url="{% url 'restar_unidad' value.producto_id %}" type="button" style="font-size: 0.8rem; line-height: 1;">-</button>
+                            <span class="mx-2 fw-bold text-dark" style="font-size: 0.85rem;">{{ value.cantidad }}</span>
+                            <button class="btn btn-sm btn-success rounded-circle py-0 px-2 shadow-sm btn-update" data-url="{% url 'sumar_unidad' value.producto_id %}" type="button" style="font-size: 0.8rem; line-height: 1;">+</button>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex flex-column align-items-end">
+                        <span class="badge bg-success rounded-pill mb-2" style="font-size: 0.75rem;">${{ value.total }}</span>
+                        <a href="{% url 'eliminar_del_carrito' value.producto_id %}" class="text-danger decoration-none">
+                            <i class="bi bi-trash" style="font-size: 1rem;"></i>
+                        </a>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            <hr>
+            
+            <div class="d-grid gap-2 mt-3">
+                <h4 class="text-center fw-bold">Total: <span class="text-success">${{ request.session.carrito_total }}</span></h4>
+                <a href="{% url 'limpiar_carrito' %}" class="btn btn-outline-danger btn-sm rounded-pill">Vaciar Pedido</a>
+                <a href="#" class="btn btn-primary shadow rounded-pill" id="btn-whatsapp">Enviar a WhatsApp 🚀</a>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-cart text-white" style="font-size: 1.5rem;"></i>
+                <p class="mt-3">Tu pedido está vacío.</p>
+                <button class="btn btn-outline-primary" data-bs-dismiss="offcanvas">Ver productos</button>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
