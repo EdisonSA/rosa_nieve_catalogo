@@ -71,7 +71,7 @@
                             {% if p.stock > 0 %}
                             <a href="{% url 'detalle_producto' p.pk %}" class="btn btn-sm btn-outline-glam">Ver más</a>
                             <a href="{% url 'agregar_al_carrito' p.pk %}" class="btn btn-sm btn-glam btn-add-cart">
-                                Añadir al carrito
+                                Añadir a la bolsa
                             </a>
                             {% else %}
                             <button class="btn btn-sm btn-light border text-muted" disabled style="font-size: 0.8rem; font-style: italic;">Sin existencias</button>
